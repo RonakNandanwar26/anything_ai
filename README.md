@@ -1,4 +1,4 @@
-<h3> Possibel Error </h3>
+<h3> Possibel Error for Open AI Embedding for very long pdf (More then 200 pages)</h3>
  in case of very big book e.g more thans 200 pages, while doing embedding using OpenAI Embedding, It gives below error
 openai.RateLimitError: Error code: 429 - {'error': {'message': 'Request too large for text-embedding-ada-002 in organization 
 org-Cn3oodVtjqXfNE0HiKXiqIE4 on tokens per min (TPM): Limit 150000, Requested 159618. The input or output tokens must be reduced in 
