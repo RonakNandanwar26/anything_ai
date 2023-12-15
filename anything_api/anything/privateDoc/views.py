@@ -8,24 +8,28 @@ from langchain.document_loaders import PyPDFLoader
 
 from utility.privateDocUtility import *
 from PyPDF2 import PdfReader
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 # Create your views here.
 class Summarizedoc(APIView):
     def post(self, request):
         try:
-            print("in api")
-            print(request)
+            logging.info("in api")
+            logging.info(request)
             data = request.data
             
             model = data.get('model')
-            print(model)
+            logging.info(model)
             api_key = data.get('api_key')
             num_words = data.get('num_words')
             doc_length = data.get('doc_length')
             file = request.FILES['file']
-            print(request.data)
+            logging.info(request.data)
             file_type = file.name.split('.')[1]
-            print(file_type)
+            logging.info(file_type)
             if file_type not in ['txt','pdf']:
                 return Response({'status_code':400,'message':'Please upload text or pdf file','data':''},status=HTTP_422_UNPROCESSABLE_ENTITY)    
 
@@ -50,18 +54,16 @@ class Summarizedoc(APIView):
             #         file_data.append(text)
             #     file_data = " ".join(file_data)
 
-            print(file_data)
-
             num_tokens = llm.get_num_tokens(file_data)
+            logging.info(num_tokens)
             if num_tokens > 20000 and doc_length.lower() in ['short','medium']:
                 return Response({'status_code':400,'message':'Document is long, Please select document length Large','data':''},status=HTTP_422_UNPROCESSABLE_ENTITY)     
 
-            print(llm.get_num_tokens(file_data))
-            print("llm",llm)
+            logging.info("llm",llm)
             if doc_length.lower() in ['short','medium']:
                 summary = summarize_doc(model,llm,file_data)
             else:
-                print("Large")
+                logging.info("Large")
                 summary = summarize_long_doc(model,llm,api_key,file_data)
 
             if summary != 1:

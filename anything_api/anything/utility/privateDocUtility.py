@@ -10,9 +10,12 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chains import RetrievalQA
 
+import logging
 import numpy as np
 from PyPDF2 import PdfReader
 from sklearn.cluster import KMeans
+
+logger = logging.getLogger(__name__)
 
 def summarize_doc(model,llm,file_data):
     print("in medium func")
@@ -47,33 +50,35 @@ def summarize_doc(model,llm,file_data):
 
 
 def summarize_long_doc(model,llm,api_key,file_data):
+    logger.info("Execution Start")
     print("using Kmeans")
     docs = file_to_docs(file_data)
+    logger.info(docs)
+    logger.info((len(docs)))
     if len(docs) >= 11:
         vectors = doc_to_vector(model,api_key,docs)
-        print(vectors)
-        print("hello")
+        logger.info(vectors)
+        logger.info("hello")
         # performing clustering to get most important part of books that help summarize book in a best way
         num_clusters = 11
-        print(num_clusters)
         kmeans = KMeans(n_clusters=num_clusters,random_state=12)
-        print(kmeans)
+        logger.info(kmeans)
         kmeans.fit(vectors)
-        print(kmeans)
+        logger.info(kmeans)
         # we can consider embedding that is nearest to any cluster centroid is part that explain that cluster most.
         closest_indices = [] 
 
         for i in range(num_clusters):
 
             distances = np.linalg.norm(vectors - kmeans.cluster_centers_[i],axis=1)
-            print(distances)
+            logger.info(distances)
             closest_index = np.argmin(distances)
-            print(closest_index)
+            logger.info(closest_index)
             closest_indices.append(closest_index)
-        print(closest_indices)
+        logger.info(closest_indices)
 
         selected_indices = sorted(closest_indices)
-        print(selected_indices)
+        logger.info(selected_indices)
 
         ## summarizing closest index docs
         map_prompt = """You need to summarize single passage of book. This section of book is enclosed in triple quotes.
@@ -93,22 +98,24 @@ def summarize_long_doc(model,llm,api_key,file_data):
 
         summary_chain = load_summarize_chain(llm=llm,chain_type='map_reduce',map_prompt=map_prompt_template,combine_prompt=combine_prompt_template,verbose=True)
         selected_docs = [docs[i] for i in selected_indices]
-        print("selected docs",len(selected_docs))
+        logger.info("selected docs",len(selected_docs))
 
         summary = summary_chain.run(selected_docs)
     else:
         summary = 1
+    logger.info("Execution End")
     return summary
 
 def file_to_docs(file_data,separator=["\n\n","\n","\t"]):
-    print("in file to docs")
+    logging.info("in file to docs")
     text_splitter = RecursiveCharacterTextSplitter(separators=separator,chunk_size=8000,chunk_overlap=500)
     docs = text_splitter.create_documents([file_data])
-    print(len(docs))
+    logging.info(len(docs))
     return docs
 
 
 def doc_to_vector(model,api_key,docs):
+    logging.info("Execution Start")
     if model == 'ChatGPT':
         # making vectors using openai embedder
         embeddings = OpenAIEmbeddings(openai_api_key=api_key)
@@ -116,7 +123,7 @@ def doc_to_vector(model,api_key,docs):
     elif model == 'Gemini-Pro':
         embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001',google_api_key=api_key)
         vectors = embeddings.embed_documents([i.page_content for i in docs])
-        print(vectors)
+        logging.info(vectors)
         # embed_model = 'models/embedding-001'
         # vectors = genai.embed_content(model=embed_model,content=client_prompt)['embedding']
     return vectors

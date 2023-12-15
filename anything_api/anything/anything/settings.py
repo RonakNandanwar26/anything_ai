@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -123,3 +124,46 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Logging Configurations
+LOGGING = {
+    'version':1,
+    'disable_existing_loggers':False,
+    'formatters': {
+        'standard': {
+            'format': '{asctime} : {levelname} : {name} : line {lineno} : {funcName} : {message}',
+            'style':'{'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'filters': [] 
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'formatter': 'standard',
+            'filename': os.path.join(BASE_DIR,'admin.log'),
+        },
+        'ec2': {
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR,'admin.log'),
+            'formatter': 'standard',
+        }
+    },
+   'root': {
+        'handlers': ['console','file','ec2'],
+        'level': 'DEBUG',
+    },
+   'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        }
+    }, 
+}
