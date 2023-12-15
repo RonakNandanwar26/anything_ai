@@ -24,7 +24,7 @@ def summarize_doc():
                         "file":(file.name,file,'application/pdf')
                     }
             # response = requests.post('http://localhost:8000/doc_summary/summarize',data=data,files=files)
-            api_url = 'http://localhost:8000/doc/summarize'
+            api_url = 'http://3.110.92.222/doc/summarize'
             response = api_call(api_url,'post',data=data,files=files)
             
             if response.status_code == 200:
