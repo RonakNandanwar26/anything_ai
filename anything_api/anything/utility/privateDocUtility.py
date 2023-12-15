@@ -45,7 +45,7 @@ def summarize_doc(model,llm,file_data):
         summary_prompt = prompt.format(text=file_data)
         
         summary = llm(summary_prompt)
-
+    logger.info(summary)
     return summary
 
 
