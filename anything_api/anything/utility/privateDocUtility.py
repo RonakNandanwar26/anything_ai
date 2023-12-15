@@ -1,10 +1,17 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from langchain.embeddings import OpenAIEmbeddings
 from langchain_google_genai.embeddings import GoogleGenerativeAIEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.chat_models import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+from langchain.chains.summarize import load_summarize_chain
+from langchain.chains.question_answering import load_qa_chain
+from langchain.chains import RetrievalQA
 
 import numpy as np
+from PyPDF2 import PdfReader
 from sklearn.cluster import KMeans
 
 def summarize_doc(model,llm,file_data):
@@ -112,3 +119,56 @@ def doc_to_vector(model,api_key,docs):
         # embed_model = 'models/embedding-001'
         # vectors = genai.embed_content(model=embed_model,content=client_prompt)['embedding']
     return vectors
+
+
+
+
+
+def create_vectorstore(model,api_key,file_data):
+    docs = file_to_docs(file_data)
+    vectors = doc_to_vector(model,api_key,docs)
+    # vectorstore = Chroma.c
+    pass
+
+
+def get_file_data(file,file_type):
+    if file_type == 'txt':
+        file_data = file.read().decode('utf-8')
+        print(file_data)
+    else:
+        reader = PdfReader(file) 
+        print(reader)
+        file_data = []
+        print(file_data)
+        print(len(reader.pages))
+        for i in range(len(reader.pages)):
+            page = reader.pages[i]
+            text = page.extract_text()
+            file_data.append(text)
+        file_data = " ".join(file_data)
+
+    return file_data
+
+def doc_qna(model,api_key,question,file_name,file_data):
+    
+    if model == 'ChatGPT':
+        llm = ChatOpenAI(temperature=0,openai_api_key=api_key)
+        embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+    # elif model == 'Gemini-Pro':
+    #     llm = ChatGoogleGenerativeAI(temperature=0,google_api_key=api_key,model='gemini-pro')
+    #     embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001',google_api_key=api_key)
+    
+    # try:
+    #     print("got from chroma")
+    #     vectorstore = Chroma(persist_directory=f"./chroma_db", embedding_function=embeddings)
+    # except:
+    docs = file_to_docs(file_data)
+    vectorstore = Chroma.from_documents(docs, embeddings)
+    # docs = vectorstore.similarity_search(question)
+
+    qa = RetrievalQA.from_chain_type(llm=llm, chain_type="map_reduce", retriever=vectorstore.as_retriever())
+    # Run a query
+    response = qa.run(question)
+
+    print(response)
+    return response

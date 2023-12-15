@@ -19,5 +19,5 @@ from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('doc_summary/',include('privateDocSummary.urls')),
+    path('doc/',include('privateDoc.urls')),
 ]

@@ -6,7 +6,7 @@ from langchain.llms.openai import OpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.document_loaders import PyPDFLoader
 
-from utility.privateDocSummaryUtility import *
+from utility.privateDocUtility import *
 from PyPDF2 import PdfReader
 
 # Create your views here.
@@ -33,21 +33,22 @@ class Summarizedoc(APIView):
                 llm = OpenAI(temperature=0,openai_api_key=api_key)
             elif model == 'Gemini-Pro':
                 llm = ChatGoogleGenerativeAI(google_api_key=api_key,model='gemini-pro',temperature=0)
-
-            if file_type == 'txt':
-                file_data = file.read().decode('utf-8')
-                print(file_data)
-            else:
-                reader = PdfReader(file) 
-                print(reader)
-                file_data = []
-                print(file_data)
-                print(len(reader.pages))
-                for i in range(len(reader.pages)):
-                    page = reader.pages[i]
-                    text = page.extract_text()
-                    file_data.append(text)
-                file_data = " ".join(file_data)
+            
+            file_data = get_file_data(file,file_type)
+            # if file_type == 'txt':
+            #     file_data = file.read().decode('utf-8')
+            #     print(file_data)
+            # else:
+            #     reader = PdfReader(file) 
+            #     print(reader)
+            #     file_data = []
+            #     print(file_data)
+            #     print(len(reader.pages))
+            #     for i in range(len(reader.pages)):
+            #         page = reader.pages[i]
+            #         text = page.extract_text()
+            #         file_data.append(text)
+            #     file_data = " ".join(file_data)
 
             print(file_data)
 
@@ -69,3 +70,25 @@ class Summarizedoc(APIView):
                 return Response({'status_code':400,'message':'Document is not long enough, Please select document length short or Medium','data':''},status=HTTP_422_UNPROCESSABLE_ENTITY)
         except Exception as e:
             return Response({'status_code':400,'message':e,'data':''},status=HTTP_422_UNPROCESSABLE_ENTITY)
+        
+
+
+
+
+
+class QnADoc(APIView):
+    def post(self,request):
+        # try:
+        data = request.data
+        model = data.get('model')
+        api_key = data.get('api_key')
+        question = data.get('question')
+        file = request.FILES['file']
+        file_name = file.name
+        file_type = file.name.split('.')[1]
+        file_data = get_file_data(file,file_type)
+
+        response = doc_qna(model,api_key,question,file_name,file_data)
+        return Response({'status_code':200,'message':'success','data':response},status=HTTP_200_OK)
+        # except Exception as e:
+        #     return Response({'status_code':400,'message':e,'data':''},status=HTTP_422_UNPROCESSABLE_ENTITY)
