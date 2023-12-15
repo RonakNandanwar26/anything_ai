@@ -26,15 +26,13 @@ def summarize_doc():
             # response = requests.post('http://localhost:8000/doc_summary/summarize',data=data,files=files)
             api_url = 'http://3.110.92.222/doc/summarize'
             response = api_call(api_url,'post',data=data,files=files)
-            
+            response = eval(response.content.decode('utf-8'))
             if response.status_code == 200:
-                response = eval(response.content.decode('utf-8'))
                 data = response['data']
                 msg = response['message']      
-                # st.write(msg)  
-                # st.write(data)   
+                st.write(msg)  
+                st.write(data)   
             else:
-                print(response)
-                data = eval(response.content.decode('utf-8'))['message']
+                msg = response['message']
+                st.write(msg)
             
-            st.write(data)
