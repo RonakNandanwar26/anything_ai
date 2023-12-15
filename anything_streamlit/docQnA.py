@@ -1,5 +1,4 @@
 # First
-import openai 
 import streamlit as st
 from helper import api_call
 
