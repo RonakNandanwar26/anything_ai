@@ -28,9 +28,13 @@ def summarize_doc():
             response = api_call(api_url,'post',data=data,files=files)
             
             if response.status_code == 200:
-                response = eval(response.content.decode('utf-8'))['data']
-                message  = eval(response.content.decode('utf-8'))['message']
+                response = eval(response.content.decode('utf-8'))
+                data = response['data']
+                msg = response['message']      
+                # st.write(msg)  
+                # st.write(data)   
             else:
                 print(response)
-                response = eval(response.content.decode('utf-8'))['message']
-            st.write(response)
+                data = eval(response.content.decode('utf-8'))['message']
+            
+            st.write(data)

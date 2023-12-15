@@ -116,6 +116,7 @@ def doc_to_vector(model,api_key,docs):
     elif model == 'Gemini-Pro':
         embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001',google_api_key=api_key)
         vectors = embeddings.embed_documents([i.page_content for i in docs])
+        print(vectors)
         # embed_model = 'models/embedding-001'
         # vectors = genai.embed_content(model=embed_model,content=client_prompt)['embedding']
     return vectors

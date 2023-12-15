@@ -18,7 +18,7 @@ def doc_qna():
         
         # response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=st.session_state.messages)
         if st.form_submit_button("submit"):
-            api_url = 'http://3.110.92.222//doc/qna'
+            api_url = 'http://3.110.92.222/doc/qna'
             data = {
                 'model' : model,
                 'api_key' : api_key,
