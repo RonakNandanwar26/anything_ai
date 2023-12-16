@@ -18,15 +18,22 @@ def doc_qna():
         
         # response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=st.session_state.messages)
         if st.form_submit_button("submit"):
-            api_url = 'http://3.110.92.222/doc/qna'
-            data = {
-                'model' : model,
-                'api_key' : api_key,
-                'question': question
-            }
-            files = {
-                "file":(file.name,file,'application/pdf')
-            }
-            response = api_call(api_url,'post',data=data,files=files)
-            st.write(eval(response.content.decode('utf-8'))['data'])
+            if api_key == "":
+                st.error("Please enter API Key...")
+                st.stop()
+            if file is None:
+                st.error("Please select file...")
+                st.stop()
+            with st.spinner("Please wait..."):
+                api_url = 'http://3.110.92.222/doc/qna'
+                data = {
+                    'model' : model,
+                    'api_key' : api_key,
+                    'question': question
+                }
+                files = {
+                    "file":(file.name,file,'application/pdf')
+                }
+                response = api_call(api_url,'post',data=data,files=files)
+                st.write(eval(response.content.decode('utf-8'))['data'])
         
