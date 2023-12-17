@@ -36,16 +36,18 @@ def summarize_doc(model,llm,file_data):
     else:
         template = """
                     Please write concise summary of the following text in less than 100 words.
-                    Make sure summary has context of text and Do not add anything extra.
-
+                    
                     {text} 
                 """
         prompt = PromptTemplate(input_variables=["text"],template=template)
         
         summary_prompt = prompt.format(text=file_data)
-        
-        summary = llm(summary_prompt)
-    logger.info(summary)
+        print(summary_prompt)
+        if model == 'ChatGPT':
+            summary = llm(summary_prompt)
+        else:
+            summary = llm.invoke(summary_prompt).content
+    # logger.info(summary)
     return summary
 
 
@@ -147,14 +149,14 @@ def get_file_data(file,file_type):
         reader = PdfReader(file) 
         print(reader)
         file_data = []
-        print(file_data)
         print(len(reader.pages))
         for i in range(len(reader.pages)):
             page = reader.pages[i]
             text = page.extract_text()
-            file_data.append(text)
+            file_data.append(str(text))
         file_data = " ".join(file_data)
-
+        file_data = file_data.replace('"','').replace('\n',' ')
+        print(file_data)
     return file_data
 
 def doc_qna(model,api_key,question,file_name,file_data):
@@ -162,9 +164,9 @@ def doc_qna(model,api_key,question,file_name,file_data):
     if model == 'ChatGPT':
         llm = ChatOpenAI(temperature=0,openai_api_key=api_key)
         embeddings = OpenAIEmbeddings(openai_api_key=api_key)
-    # elif model == 'Gemini-Pro':
-    #     llm = ChatGoogleGenerativeAI(temperature=0,google_api_key=api_key,model='gemini-pro')
-    #     embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001',google_api_key=api_key)
+    elif model == 'Gemini-Pro':
+        llm = ChatGoogleGenerativeAI(temperature=0,google_api_key=api_key,model='gemini-pro')
+        embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001',google_api_key=api_key)
     
     # try:
     #     print("got from chroma")

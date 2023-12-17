@@ -40,8 +40,9 @@ def summarize_doc():
                     msg = response['message']      
                     # st.write(msg)  
                     # st.write(data)   
+                    st.write(data)
                 else:
                     print(response)
-                    data = eval(response.content.decode('utf-8'))['message']
+                    st.write("Something went wrong...")
                 
-                st.write(data)
+                

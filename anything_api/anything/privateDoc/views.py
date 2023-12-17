@@ -58,7 +58,7 @@ class Summarizedoc(APIView):
         if num_tokens > 20000 and doc_length.lower() in ['short','medium']:
             return Response({'status_code':400,'message':'Document is long, Please select document length Large','data':''},status=HTTP_422_UNPROCESSABLE_ENTITY)     
 
-        logging.info("llm",llm)
+        logging.info(f"llm : {llm}")
         if doc_length.lower() in ['short','medium']:
             summary = summarize_doc(model,llm,file_data)
         else:
