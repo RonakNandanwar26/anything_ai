@@ -35,5 +35,7 @@ def doc_qna():
                     "file":(file.name,file,'application/pdf')
                 }
                 response = api_call(api_url,'post',data=data,files=files)
-                st.write(eval(response.content.decode('utf-8'))['data'])
-        
+                if response.status_code == 200:
+                    st.write(eval(response.content.decode('utf-8'))['data'])
+                else:
+                    st.error(eval(response.content.decode('utf-8'))['message'])

@@ -42,7 +42,6 @@ def summarize_doc():
                     # st.write(data)   
                     st.write(data)
                 else:
-                    print(response)
-                    st.write("Something went wrong...")
+                    st.error(eval(response.content.decode('utf-8'))['message'])
                 
                 
