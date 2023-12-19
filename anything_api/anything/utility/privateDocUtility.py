@@ -165,11 +165,12 @@ def doc_qna(model,api_key,question,file_name,file_data):
         llm = ChatOpenAI(temperature=0,openai_api_key=api_key)
         embeddings = OpenAIEmbeddings(openai_api_key=api_key)
     elif model == 'Gemini-Pro':
+        logging.info("In gemini")
         llm = ChatGoogleGenerativeAI(temperature=0,google_api_key=api_key,model='gemini-pro')
         embeddings = GoogleGenerativeAIEmbeddings(model='models/embedding-001',google_api_key=api_key)
-    
+        logging.info(embeddings)
     # try:
-    #     print("got from chroma")
+    #     logging.info("got from chroma")
     #     vectorstore = Chroma(persist_directory=f"./chroma_db", embedding_function=embeddings)
     # except:
     docs = file_to_docs(file_data)
@@ -178,7 +179,15 @@ def doc_qna(model,api_key,question,file_name,file_data):
 
     qa = RetrievalQA.from_chain_type(llm=llm, chain_type="map_reduce", retriever=vectorstore.as_retriever())
     # Run a query
-    response = qa.run(question)
-
+    if model == 'Gemini-Pro':
+        logging.info("In gemini")
+        # question = {"role": "user/assistant",
+        #             "query" : ["In one sentence, explain how a computer works to a young child."]}
+        # question = [HumanMessage(content=question)]
+        # if isinstance(question[0,HumanMessage]):
+        #     print("human message ")
+        response = qa.run(query=question)
+    elif model =='ChatGPT':
+        response = qa.run(question)
     print(response)
     return response

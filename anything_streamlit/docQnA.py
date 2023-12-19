@@ -11,7 +11,7 @@ def doc_qna():
     st.title("Document Question Answer")
     with st.form("Document Question Answer"): 
         model = st.selectbox("Choose Model: ",
-                            options=['ChatGPT','Gemini-Pro']) # Gemini-Pro'
+                            options=['ChatGPT']) # Gemini-Pro'
         api_key = st.text_input("API Key",type='password')
         file = st.file_uploader("Choose a File:",type=['txt','pdf'])
         question = st.text_area("Question:") 
